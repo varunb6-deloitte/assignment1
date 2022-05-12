@@ -1,0 +1,41 @@
+Milestone 1:
+
+CREATE TABLE team_details (slno SERIAL PRIMARY KEY, team_name VARCHAR(5), captain VARCHAR(30), owner VARCHAR(30), home_ground VARCHAR(20));
+CREATE TABLE fixtures (match_number INT PRIMARY KEY, home_team VARCHAR(5), away_team VARCHAR(5), venue VARCHAR(30), team_won VARCHAR(5), team_lost VARCHAR(5));
+CREATE TABLE points (team_name VARCHAR(5) PRIMARY KEY, no_of_wins INT, no_of_losses INT, points INT);
+
+Milestone 2:
+
+COPY team_details FROM 'C:\team-details (2).csv' DELIMITER ',' CSV HEADER;
+SELECT * FROM team_details;  
+SELECT COUNT(*) FROM team_details;  
+
+Milestone 3:
+
+COPY fixtures FROM 'C:\Fixtures (2).csv' DELIMITER ',' CSV HEADER;
+
+Milestone 4:
+
+SELECT * FROM fixtures WHERE home_team='RCB';  
+
+Milestone 5:
+
+SELECT DISTINCT team_lost FROM fixtures WHERE venue='Kolkata';  ; 
+
+Milestone 6:
+
+INSERT INTO points(team_name) (
+SELECT team_won AS teams FROM fixtures GROUP BY team_won HAVING COUNT(team_won) > 8 
+UNION
+SELECT team_lost AS teams FROM fixtures GROUP BY team_lost HAVING COUNT(team_lost)=(SELECT MAX(s.count) from (SELECT COUNT(*) FROM fixtures GROUP BY team_lost) s)
+UNION
+SELECT team_won AS teams FROM fixtures GROUP BY team_won HAVING COUNT(team_won)*2 BETWEEN 11 AND 15
+);  
+
+UPDATE points SET no_of_wins=(SELECT COUNT(*) FROM fixtures WHERE team_won=points.team_name)
+UPDATE points SET no_of_losses=(SELECT COUNT(*) FROM fixtures WHERE team_lost=points.team_name)
+UPDATE points SET points=no_of_wins*2;  
+
+SELECT no_of_losses FROM points WHERE team_name='PK';  
+
+SELECT team_name FROM points WHERE points>(SELECT points FROM points WHERE team_name='RR'); 
